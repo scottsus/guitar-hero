@@ -30,64 +30,115 @@ module vga_bitchange(
 	output reg [15:0] score
    );
 	
-	parameter BLACK = 12'b0000_0000_0000;
-	parameter WHITE = 12'b1111_1111_1111;
-	parameter RED   = 12'b1111_0000_0000;
-	parameter GREEN = 12'b0000_1111_0000;
-	//parameter BLUE = 12'b0000_0000_1111;
-
-	wire whiteZone;
-	wire greenMiddleSquare;
+	parameter BLACK  = 12'b0000_0000_0000;
+	parameter RED    = 12'b1111_0000_0000;
+	parameter PINK   = 12'b1111_0010_1000;
+	parameter PURPLE = 12'b0111_0000_1011;
+	parameter BLUE   = 12'b0011_0000_1010;
+	parameter TEAL   = 12'b0100_1100_1111;
+	
+	wire bottomLineZone;
+	wire pinkBlock, purpleBlock, blueBlock, tealBlock;
 	reg reset;
-	reg[9:0] greenMiddleSquareY;
-	reg[49:0] greenMiddleSquareSpeed; 
+	reg[9:0] pinkBlockY, purpleBlockY, blueBlockY, tealBlockY;
+	reg[49:0] pinkBlockSpeed, purpleBlockSpeed, blueBlockSpeed, tealBlockSpeed;
 
 	initial begin
-		greenMiddleSquareY = 10'd320;
+		blueBlockY = 10'd320;
 		score = 15'd0;
 		reset = 1'b0;
 	end
 	
 	
-	always@ (*) // paint a white box on a red background
-    	if (~bright)
-		rgb = BLACK; // force black if not bright
-	 else if (greenMiddleSquare == 1)
-		rgb = GREEN;
-	 else if (whiteZone == 1)
-		rgb = WHITE; // white box
-	 else
-		rgb = RED; // background color
+    always@ (*)
+    if (~bright)
+        rgb = BLACK;
+    else if (pinkBlock)
+        rgb = PINK;
+    else if (purpleBlock)
+        rgb = PURPLE;
+    else if (blueBlock == 1)
+        rgb = BLUE;
+    else if (tealBlock)
+        rgb = TEAL;
+	else if (bottomLineZone == 1)
+		rgb = RED;
+	else
+		rgb = BLACK;
 
 	
 	always@ (posedge clk)
 		begin
-		greenMiddleSquareSpeed = greenMiddleSquareSpeed + 50'd1;
-		if (greenMiddleSquareSpeed >= 50'd500000) //500 thousand
+	pinkBlockSpeed = pinkBlockSpeed + 1'b1;
+		if (blueBlockSpeed >= 50'd500000) //500 thousand
 			begin
-			greenMiddleSquareY = greenMiddleSquareY + 10'd1;
-			greenMiddleSquareSpeed = 50'd0;
-			if (greenMiddleSquareY == 10'd779)
+			pinkBlockY = pinkBlockY + 10'd1;
+			pinkBlockSpeed = 50'd0;
+			if (pinkBlockY == 10'd999)
 				begin
-				greenMiddleSquareY = 10'd0;
+				pinkBlockY = 10'd0;
 				end
 			end
 		end
+		
+	always@ (posedge clk)
+		begin
+		purpleBlockSpeed = purpleBlockSpeed + 1'b1;
+		if (purpleBlockSpeed >= 50'd500000) //500 thousand
+			begin
+			purpleBlockY = purpleBlockY + 10'd1;
+			purpleBlockSpeed = 50'd0;
+			if (purpleBlockY == 10'd1579)
+				begin
+				purpleBlockY = 10'd0;
+				end
+			end
+		end
+		
+	always@ (posedge clk)
+		begin
+		blueBlockSpeed = blueBlockSpeed + 1'b1;
+		if (blueBlockSpeed >= 50'd500000) //500 thousand
+			begin
+			blueBlockY = blueBlockY + 10'd1;
+			blueBlockSpeed = 50'd0;
+			if (blueBlockY == 10'd1279)
+				begin
+				blueBlockY = 10'd0;
+				end
+			end
+		end
+		
+	always@ (posedge clk)
+		begin
+		tealBlockSpeed = tealBlockSpeed + 1'b1;
+		if (tealBlockSpeed >= 50'd500000) //500 thousand
+			begin
+			tealBlockY = tealBlockY + 10'd1;
+			tealBlockSpeed = 50'd0;
+			if (tealBlockY == 10'd859)
+				begin
+				tealBlockY = 10'd0;
+				end
+			end
+		end
+	   
 
 	always@ (posedge clk)
-		if ((reset == 1'b0) && (button == 1'b1) && (hCount >= 10'd144) && (hCount <= 10'd784) && (greenMiddleSquareY >= 10'd400) && (greenMiddleSquareY <= 10'd475))
+		if ((reset == 1'b0) && (button == 1'b1) && (hCount >= 10'd144) && (hCount <= 10'd784) && (blueBlockY >= 10'd400) && (blueBlockY <= 10'd475))
 			begin
 			score = score + 16'd1;
 			reset = 1'b1;
 			end
-		else if (greenMiddleSquareY <= 10'd20)
+		else if (blueBlockY <= 10'd20)
 			begin
 			reset = 1'b0;
 			end
-
-	assign whiteZone = ((hCount >= 10'd144) && (hCount <= 10'd784)) && ((vCount >= 10'd400) && (vCount <= 10'd475)) ? 1 : 0;
-
-	assign greenMiddleSquare = ((hCount >= 10'd340) && (hCount < 10'd380)) &&
-				   ((vCount >= greenMiddleSquareY) && (vCount <= greenMiddleSquareY + 10'd40)) ? 1 : 0;
+	
+	assign pinkBlock = ((10'd220 <= hCount) && (hCount <= 10'd280)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd60)) ? 1 : 0;
+	assign purpleBlock = ((10'd320 <= hCount) && (hCount <= 10'd380)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd90)) ? 1 : 0;
+	assign blueBlock = ((10'd420 <= hCount) && (hCount <= 10'd480)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd70)) ? 1 : 0;
+	assign tealBlock = ((10'd520 <= hCount) && (hCount <= 10'd580)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd100)) ? 1 : 0;
+	assign bottomLineZone = ((10'd144 <= hCount) && (hCount <= 10'd784)) && ((10'd500 <= vCount) && (vCount <= 10'd516)) ? 1 : 0;
 	
 endmodule
