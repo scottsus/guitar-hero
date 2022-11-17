@@ -69,8 +69,8 @@ module vga_bitchange(
 	
 	always@ (posedge clk)
 		begin
-	pinkBlockSpeed = pinkBlockSpeed + 1'b1;
-		if (blueBlockSpeed >= 50'd500000) //500 thousand
+	    pinkBlockSpeed = pinkBlockSpeed + 1'b1;
+		if (pinkBlockSpeed >= 50'd500000) //500 thousand
 			begin
 			pinkBlockY = pinkBlockY + 10'd1;
 			pinkBlockSpeed = 50'd0;
@@ -88,7 +88,7 @@ module vga_bitchange(
 			begin
 			purpleBlockY = purpleBlockY + 10'd1;
 			purpleBlockSpeed = 50'd0;
-			if (purpleBlockY == 10'd1579)
+			if (purpleBlockY == 10'd900)
 				begin
 				purpleBlockY = 10'd0;
 				end
@@ -102,7 +102,7 @@ module vga_bitchange(
 			begin
 			blueBlockY = blueBlockY + 10'd1;
 			blueBlockSpeed = 50'd0;
-			if (blueBlockY == 10'd1279)
+			if (blueBlockY == 10'd950)
 				begin
 				blueBlockY = 10'd0;
 				end
@@ -135,10 +135,10 @@ module vga_bitchange(
 			reset = 1'b0;
 			end
 	
-	assign pinkBlock = ((10'd220 <= hCount) && (hCount <= 10'd280)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd60)) ? 1 : 0;
-	assign purpleBlock = ((10'd320 <= hCount) && (hCount <= 10'd380)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd90)) ? 1 : 0;
+	assign pinkBlock = ((10'd220 <= hCount) && (hCount <= 10'd280)) && ((pinkBlockY <= vCount) && (vCount <= pinkBlockY + 10'd60)) ? 1 : 0;
+	assign purpleBlock = ((10'd320 <= hCount) && (hCount <= 10'd380)) && ((purpleBlockY <= vCount) && (vCount <= purpleBlockY + 10'd90)) ? 1 : 0;
 	assign blueBlock = ((10'd420 <= hCount) && (hCount <= 10'd480)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd70)) ? 1 : 0;
-	assign tealBlock = ((10'd520 <= hCount) && (hCount <= 10'd580)) && ((blueBlockY <= vCount) && (vCount <= blueBlockY + 10'd100)) ? 1 : 0;
+	assign tealBlock = ((10'd520 <= hCount) && (hCount <= 10'd580)) && ((tealBlockY <= vCount) && (vCount <= tealBlockY + 10'd100)) ? 1 : 0;
 	assign bottomLineZone = ((10'd144 <= hCount) && (hCount <= 10'd784)) && ((10'd500 <= vCount) && (vCount <= 10'd516)) ? 1 : 0;
 	
 endmodule
